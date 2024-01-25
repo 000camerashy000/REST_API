@@ -25,6 +25,9 @@ response=$(curl -X POST \
   }')
 
 # Extract data and convert it into a csv file.
+cat << END_OF_HEADERS > cp_registration_data.csv
+cpTitle,ppid,firstName,activityStatus,races,ethnicities
+END_OF_HEADERS
 
 jq -r '.[] | [.cpTitle, .ppid, .participant.firstName, .activityStatus, (.participant.races | join(",")), (.participant.ethnicities | join(","))] | @csv' <<< "$response" >> cp_registration_data.csv
 
