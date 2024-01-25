@@ -6,3 +6,9 @@ response=$(curl -X POST \
     "password": "ashishOpen1",
     "domainName": "openspecimen"
   }')
+
+
+token=$(echo $response | jq -r '.token')
+
+my_token=$token
+echo "The token is: $my_token"
