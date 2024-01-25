@@ -11,5 +11,7 @@ response=$(curl -X POST \
 token=$(echo $response | jq -r '.token')
 
 
-my_token=$token
-echo "The token is: $my_token"
+curl -X GET \
+  http://localhost:80/rest/ng/collection-protocols/4 \
+  -H 'Content-Type: application/json' \
+  -H "X-OS-API-TOKEN: $token"
