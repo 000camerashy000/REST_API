@@ -21,8 +21,3 @@ API is a communication medium between two programs or systems. The client is the
 A web application is a network-based resource responsible for completing a single task, v/s APIs as a tool is used to allow one system to leverage the functionalities of another without needing to understand the internal workings of that system.
 
 ---
-
-**Re**presentational **S**tate **T**ransfer (REST)
-
-
-
