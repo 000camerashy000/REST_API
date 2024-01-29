@@ -46,14 +46,14 @@ with requests.Session() as session:
 
     # Get Participant ID
     participant_response = session.post(participant_url, json=getCPRs, headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
-    participant_ids = [participant["participant"]["id"] for participant in participant_response.json()]
+    registration_ids = [participant["participant"]["id"] for participant in participant_response.json()]
 
     # Get Visits data and count visits and total specimens for each PPID
     visit_counts = defaultdict(int)
     total_specimens_counts = defaultdict(int)
 
-    for participant_id in participant_ids:
-        visits_response = session.get(visits_url + f"?cprId={participant_id}&includeStats=true", headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
+    for registration_id in registration_ids:
+        visits_response = session.get(visits_url + f"?cprId={registration_id}&includeStats=true", headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
         visits_data = visits_response.json()
 
         for visit in visits_data:
