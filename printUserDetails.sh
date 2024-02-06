@@ -1,14 +1,21 @@
-response=$(curl -X POST \
-  http://localhost:80/rest/ng/sessions \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "loginName": "av",
-    "password": "ashishOpen1",
-    "domainName": "openspecimen"
-  }')
+getSessions() {
+  getToken=$(curl -X POST \
+    http://localhost:80/rest/ng/sessions \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "loginName": "av",
+      "password": "ashishOpen1@",
+      "domainName": "openspecimen"
+    }')
 
 
-token=$(echo $response | jq -r '.token')
+  token=$(echo $getToken | jq -r '.token')
 
-my_token=$token
-echo "The token is: $my_token"
+  echo "The token is: $token"
+}
+
+main() {
+  getSessions
+}
+
+main;
