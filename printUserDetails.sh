@@ -6,7 +6,7 @@ getSessions() {
       "loginName": "av",
       "password": "ashishOpen1@",
       "domainName": "openspecimen"
-    }')
+    }'
 
 
   token=$(echo $getToken | jq -r '.token')
