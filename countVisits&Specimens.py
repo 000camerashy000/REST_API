@@ -21,52 +21,52 @@ import requests
 import csv
 
 # Credintials
-login_data = {
+loginData = {
     "loginName": "av",
     "password": "ashishOpen1@",
     "domainName": "openspecimen"
 }
 
 # CP Id to extract Participants
-getCPRs = {
+getCprs = {
     "cpId": 4,
     "maxResults": 10
 }
 
 # Resources
-base_url = "http://localhost:80/rest/ng/"
-login_url = base_url + "sessions"
-participant_url = base_url + "collection-protocol-registrations/list"
-visits_url = base_url + "visits"
+baseUrl = "http://localhost:80/rest/ng/"
+loginUrl = baseUrl + "sessions"
+participantUrl = baseUrl + "collection-protocol-registrations/list"
+visitsUrl = baseUrl + "visits"
 
 # Get Participant ID and Visits data
 with requests.Session() as session:
-    login_response = session.post(login_url, json=login_data, headers={"Content-Type": "application/json"})
-    token = login_response.json()["token"]
+    loginResponse = session.post(loginUrl, json=loginData, headers={"Content-Type": "application/json"})
+    token = loginResponse.json()["token"]
 
     # Get Participant ID
-    participant_response = session.post(participant_url, json=getCPRs, headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
-    participant_ids = [participant["participant"]["id"] for participant in participant_response.json()]
+    participantResponse = session.post(participantUrl, json=getCprs, headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
+    participantIds = [participant["participant"]["id"] for participant in participantResponse.json()]
 
     # Get Visits data and count visits and total specimens for each PPID
-    visit_counts = defaultdict(int)
-    total_specimens_counts = defaultdict(int)
+    visitsCount = defaultdict(int)
+    totalSpecimenCount = defaultdict(int)
 
-    for participant_id in participant_ids:
-        visits_response = session.get(visits_url + f"?cprId={participant_id}&includeStats=true", headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
-        visits_data = visits_response.json()
+    for participantId in participantIds:
+        visitsResponse = session.get(visitsUrl + f"?cprId={participantId}&includeStats=true", headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
+        visitsData = visitsResponse.json()
 
-        for visit in visits_data:
+        for visit in visitsData:
             if "id" in visit:
                 ppid = visit.get("ppid")
-                stored_specimens = visit.get("storedSpecimens")
-                not_stored_specimens = visit.get("notStoredSpecimens")
-                visit_counts[ppid] += 1
-                total_specimens_counts[ppid] += stored_specimens + not_stored_specimens
+                storedSpecimens = visit.get("storedSpecimens")
+                notStoredSpecimens = visit.get("notStoredSpecimens")
+                visitsCount[ppid] += 1
+                totalSpecimenCount[ppid] += storedSpecimens + notStoredSpecimens
 
 # Write data to CSV
 with open("specimenCount_python.csv", "w", newline="") as csvfile:
     csvwriter = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
     csvwriter.writerow(["ppid", "total_visits", "total_specimens_all_visit"])
-    for ppid in visit_counts.keys():
-        csvwriter.writerow([ppid, visit_counts[ppid], total_specimens_counts[ppid]])
+    for ppid in visitsCount.keys():
+        csvwriter.writerow([ppid, visitsCount[ppid], totalSpecimenCount[ppid]])
