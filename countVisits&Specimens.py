@@ -1,21 +1,4 @@
-"""
-
-------------------- PSEUDO-CODE --------------------
-
-Step 1: Authenticate
-Step 2: Using Authentication, retrieve participant IDs
-Step 3: Extract participants IDs for a CP and store in variable
-Step 4: Iterate over the participant IDs to get Visit Details // (Collected Visits have 'id' in the JSON response) && (total specimen for a visit = 'storedSpecimens' + 'notStoredSpecimens')
-Step 5: Check if visit response has 'id' i.e. collected visits
-        If yes, extract (PPID/Participant Identifer) and storedSpecimens and notStoredSpecimens (storedSpecimen + notStoredSpecimens = totalSpecimen per Visit)
-Step 6: Calculate Visit Count by calculating the ids obtain for a pariticpant, and add the totalSpecimen count per visit to get totalSpecimen count per Pariticipant.
-Step 7: Add the data in csv file.
-
----------------------------------------------------
-
-"""
-
-# Import Libraries
+#Import Libraries
 from collections import defaultdict
 import requests
 import csv
@@ -39,13 +22,26 @@ loginUrl = baseUrl + "sessions"
 participantUrl = baseUrl + "collection-protocol-registrations/list"
 visitsUrl = baseUrl + "visits"
 
+
 # Get Participant ID and Visits data
 with requests.Session() as session:
     loginResponse = session.post(loginUrl, json=loginData, headers={"Content-Type": "application/json"})
+    
+    # Check if login is successful
+    if loginResponse.status_code != 200:
+        print("Login failed. Status code:", loginResponse.status_code)
+        exit()
+        
     token = loginResponse.json()["token"]
 
     # Get Participant ID
     participantResponse = session.post(participantUrl, json=getCprs, headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
+    
+    # Check if participant data is retrieved successfully
+    if participantResponse.status_code != 200:
+        print("Failed to retrieve participant data. Status code:", participantResponse.status_code)
+        exit()
+        
     participantIds = [participant["participant"]["id"] for participant in participantResponse.json()]
 
     # Get Visits data and count visits and total specimens for each PPID
@@ -54,6 +50,12 @@ with requests.Session() as session:
 
     for participantId in participantIds:
         visitsResponse = session.get(visitsUrl + f"?cprId={participantId}&includeStats=true", headers={"Content-Type": "application/json", "X-OS-API-TOKEN": token})
+        
+        # Check if visit data is retrieved successfully
+        if visitsResponse.status_code != 200:
+            print(f"Failed to retrieve visit data for participant ID {participantId}. Status code:", visitsResponse.status_code)
+            continue
+            
         visitsData = visitsResponse.json()
 
         for visit in visitsData:
